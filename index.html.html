@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>تقييم جودة الوجبات</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', Tahoma, Arial, sans-serif; background: #f5f5f5; min-height: 100vh; padding: 1.5rem 1rem; direction: rtl; }
+  .form-wrap { max-width: 560px; margin: 0 auto; }
+  .hero { background: linear-gradient(135deg, #f97316, #ef4444); border-radius: 16px; padding: 2rem 1.5rem; margin-bottom: 1.5rem; color: #fff; text-align: center; }
+  .hero-icon { font-size: 2.5rem; margin-bottom: 0.5rem; }
+  .hero h1 { font-size: 22px; font-weight: 600; margin-bottom: 0.25rem; }
+  .hero p { font-size: 14px; opacity: 0.88; }
+  .progress-bar { background: rgba(255,255,255,0.3); border-radius: 8px; height: 6px; margin-top: 1rem; }
+  .progress-fill { background: #fff; border-radius: 8px; height: 6px; transition: width 0.4s ease; }
+  .step { display: none; }
+  .step.active { display: block; }
+  .card { background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 1.25rem; margin-bottom: 1rem; }
+  .card-label { font-size: 13px; font-weight: 600; color: #6b7280; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 6px; }
+  .required-dot { width: 7px; height: 7px; border-radius: 50%; background: #ef4444; display: inline-block; flex-shrink: 0; }
+  input[type="text"], textarea { width: 100%; border: 1px solid #d1d5db; border-radius: 8px; padding: 10px 12px; font-size: 14px; font-family: inherit; background: #f9fafb; color: #111827; direction: rtl; resize: vertical; transition: border-color 0.15s, box-shadow 0.15s; }
+  input[type="text"]:focus, textarea:focus { outline: none; border-color: #f97316; box-shadow: 0 0 0 3px rgba(249,115,22,0.15); background: #fff; }
+  .chip-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .chip { border: 1px solid #d1d5db; border-radius: 10px; padding: 10px 12px; font-size: 14px; cursor: pointer; color: #374151; background: #f9fafb; transition: all 0.15s; text-align: center; display: flex; align-items: center; justify-content: center; gap: 6px; user-select: none; }
+  .chip:hover { border-color: #f97316; background: rgba(249,115,22,0.06); }
+  .chip.selected { border-color: #f97316; background: rgba(249,115,22,0.12); color: #c2410c; font-weight: 600; }
+  .nav { display: flex; justify-content: space-between; align-items: center; margin-top: 1.25rem; gap: 10px; }
+  .btn-back { border: 1px solid #d1d5db; border-radius: 8px; padding: 10px 20px; font-size: 14px; cursor: pointer; background: #fff; color: #6b7280; font-family: inherit; transition: background 0.15s; }
+  .btn-back:hover { background: #f3f4f6; }
+  .btn-next { border: none; border-radius: 8px; padding: 10px 24px; font-size: 14px; font-weight: 600; cursor: pointer; background: #f97316; color: #fff; font-family: inherit; transition: background 0.15s; flex: 1; }
+  .btn-next:hover { background: #ea6c0a; }
+  .btn-next:disabled { background: #d1d5db; cursor: not-allowed; }
+  .step-label { font-size: 12px; color: #9ca3af; text-align: center; white-space: nowrap; }
+  .error-msg { font-size: 12px; color: #ef4444; margin-top: 6px; display: none; }
+  .meal-info { background: rgba(249,115,22,0.08); border: 1px solid rgba(249,115,22,0.25); border-radius: 10px; padding: 12px 14px; margin-bottom: 1rem; font-size: 13px; color: #c2410c; }
+  .section-title { font-size: 11px; font-weight: 700; color: #f97316; margin: 1rem 0 0.5rem; letter-spacing: 0.06em; }
+  .success-card { background: #fff; border: 1px solid #e5e7eb; border-radius: 16px; padding: 2.5rem 1.5rem; text-align: center; }
+  .success-icon { font-size: 3rem; margin-bottom: 1rem; }
+  .success-card h2 { font-size: 20px; font-weight: 600; margin-bottom: 0.5rem; color: #111827; }
+  .success-card p { font-size: 14px; color: #6b7280; }
+  .submit-status { font-size: 13px; color: #6b7280; text-align: center; margin-top: 8px; min-height: 20px; }
+  .spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid #fff; border-top-color: transparent; border-radius: 50%; animation: spin 0.7s linear infinite; vertical-align: middle; margin-left: 6px; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @media (max-width: 400px) { .chip-grid { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<div class="form-wrap">
+
+  <div class="hero">
+    <div class="hero-icon">🍽️</div>
+    <h1>تقييم جودة الوجبات</h1>
+    <p>ساعدنا في تحسين تجربتك الغذائية</p>
+    <div class="progress-bar"><div class="progress-fill" id="prog" style="width:25%"></div></div>
+  </div>
+
+  <!-- Step 1: Name -->
+  <div class="step active" id="s1">
+    <div class="meal-info">📋 Appendix 1 SOP#GU ADM001101</div>
+    <div class="card">
+      <div class="card-label"><span class="required-dot"></span> اسم الموظف</div>
+      <input type="text" id="emp-name" placeholder="أدخل اسمك الكامل" />
+      <div class="error-msg" id="err-name">الرجاء إدخال اسمك</div>
+    </div>
+    <div class="nav">
+      <span class="step-label">الخطوة 1 من 4</span>
+      <button class="btn-next" onclick="goNext(1)">التالي ←</button>
+    </div>
+  </div>
+
+  <!-- Step 2: Department & Meal -->
+  <div class="step" id="s2">
+    <div class="section-title">القسم</div>
+    <div class="card">
+      <div class="card-label"><span class="required-dot"></span> اختر قسمك</div>
+      <div class="chip-grid" id="dept-chips">
+        <div class="chip" onclick="pick(this,'dept')">🏭 إنتاج</div>
+        <div class="chip" onclick="pick(this,'dept')">🔬 مختبر</div>
+        <div class="chip" onclick="pick(this,'dept')">💼 إدارة</div>
+        <div class="chip" onclick="pick(this,'dept')">🚀 R&D</div>
+        <div class="chip" onclick="pick(this,'dept')">🔧 هندسة</div>
+        <div class="chip" onclick="pick(this,'dept')">✅ QA</div>
+      </div>
+      <div class="error-msg" id="err-dept">الرجاء اختيار قسم</div>
+    </div>
+
+    <div class="section-title">قائمة الوجبات</div>
+    <div class="card">
+      <div class="card-label"><span class="required-dot"></span> اختر الوجبة</div>
+      <div class="chip-grid" id="meal-chips">
+        <div class="chip" onclick="pick(this,'meal')">🍗 فراخ كرسبي، أرز</div>
+        <div class="chip" onclick="pick(this,'meal')">🥩 كفتة، أرز</div>
+        <div class="chip" onclick="pick(this,'meal')">🍜 كشري</div>
+        <div class="chip" onclick="pick(this,'meal')">🍢 شيش طاووق، أرز</div>
+        <div class="chip" onclick="pick(this,'meal')">🫘 فول، باذنجان، حلاوة</div>
+        <div class="chip" onclick="pick(this,'meal')">🍗 فراخ جريل، أرز</div>
+        <div class="chip" onclick="pick(this,'meal')">🥙 شاورما فراخ، أرز</div>
+        <div class="chip" onclick="pick(this,'meal')" style="grid-column:1/-1">🥗 حواوشي، سلطة طحينة، مخلل</div>
+      </div>
+      <div class="error-msg" id="err-meal">الرجاء اختيار الوجبة</div>
+    </div>
+    <div class="nav">
+      <button class="btn-back" onclick="goBack(2)">→ رجوع</button>
+      <span class="step-label">الخطوة 2 من 4</span>
+      <button class="btn-next" onclick="goNext(2)">التالي ←</button>
+    </div>
+  </div>
+
+  <!-- Step 3: Rating -->
+  <div class="step" id="s3">
+    <div class="section-title">تقييم الوجبة</div>
+    <div class="card">
+      <div class="card-label"><span class="required-dot"></span> كمية تقديم الغذاء</div>
+      <div class="chip-grid" id="qty-chips">
+        <div class="chip" onclick="pick(this,'qty')">😍 ممتازة</div>
+        <div class="chip" onclick="pick(this,'qty')">😊 جيدة جداً</div>
+        <div class="chip" onclick="pick(this,'qty')">😐 جيدة</div>
+        <div class="chip" onclick="pick(this,'qty')">😕 مقبولة</div>
+        <div class="chip" onclick="pick(this,'qty')" style="grid-column:1/-1">😞 سيئة</div>
+      </div>
+      <div class="error-msg" id="err-qty">الرجاء اختيار تقييم الكمية</div>
+    </div>
+    <div class="card">
+      <div class="card-label">هل أبلغت المشرف المسؤول؟</div>
+      <div class="chip-grid" id="reported-chips">
+        <div class="chip" onclick="pick(this,'reported')">✅ نعم، أبلغت</div>
+        <div class="chip" onclick="pick(this,'reported')">❌ لم أبلغ</div>
+      </div>
+    </div>
+    <div class="nav">
+      <button class="btn-back" onclick="goBack(3)">→ رجوع</button>
+      <span class="step-label">الخطوة 3 من 4</span>
+      <button class="btn-next" onclick="goNext(3)">التالي ←</button>
+    </div>
+  </div>
+
+  <!-- Step 4: Comment & Submit -->
+  <div class="step" id="s4">
+    <div class="section-title">ملاحظات</div>
+    <div class="card">
+      <div class="card-label">تعليق أو اقتراح لتحسين الوجبات (اختياري)</div>
+      <textarea id="comment" rows="4" placeholder="اكتب ملاحظتك هنا..."></textarea>
+    </div>
+    <div class="nav">
+      <button class="btn-back" onclick="goBack(4)">→ رجوع</button>
+      <span class="step-label">الخطوة 4 من 4</span>
+      <button class="btn-next" id="submit-btn" onclick="submitForm()" style="background:#22c55e">إرسال التقييم ✓</button>
+    </div>
+    <div class="submit-status" id="submit-status"></div>
+  </div>
+
+  <!-- Success -->
+  <div class="step" id="s5">
+    <div class="success-card">
+      <div class="success-icon">🎉</div>
+      <h2>شكراً على تقييمك!</h2>
+      <p>تم حفظ تقييمك في جداول البيانات بنجاح<br>وسيساعدنا في تحسين جودة وجباتكم</p>
+      <div style="margin-top:1.5rem">
+        <button class="btn-next" onclick="restart()" style="max-width:200px;margin:0 auto;display:block;background:#f97316">تقييم جديد</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw5HIhR_FWwkJSKlVJUQyMjpHK2Uc3X1iv2M0Pjynt_O7_KmAuBitEq2ZpVmQX53jxboQ/exec';
+  const selections = {};
+
+  function pick(el, group) {
+    document.querySelectorAll('#' + group + '-chips .chip').forEach(c => c.classList.remove('selected'));
+    el.classList.add('selected');
+    selections[group] = el.textContent.trim();
+    const err = document.getElementById('err-' + group);
+    if (err) err.style.display = 'none';
+  }
+
+  function showStep(n) {
+    document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+    document.getElementById('s' + n).classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    const pcts = { 1: 25, 2: 50, 3: 75, 4: 95, 5: 100 };
+    document.getElementById('prog').style.width = (pcts[n] || 25) + '%';
+  }
+
+  function goNext(step) {
+    if (step === 1) {
+      const val = document.getElementById('emp-name').value.trim();
+      if (!val) { document.getElementById('err-name').style.display = 'block'; return; }
+    }
+    if (step === 2) {
+      let ok = true;
+      if (!selections['dept']) { document.getElementById('err-dept').style.display = 'block'; ok = false; }
+      if (!selections['meal']) { document.getElementById('err-meal').style.display = 'block'; ok = false; }
+      if (!ok) return;
+    }
+    if (step === 3) {
+      if (!selections['qty']) { document.getElementById('err-qty').style.display = 'block'; return; }
+    }
+    showStep(step + 1);
+  }
+
+  function goBack(step) { showStep(step - 1); }
+
+  async function submitForm() {
+    const btn = document.getElementById('submit-btn');
+    const status = document.getElementById('submit-status');
+    btn.disabled = true;
+    btn.innerHTML = 'جاري الإرسال <span class="spinner"></span>';
+    status.textContent = '';
+
+    const payload = {
+      timestamp: new Date().toLocaleString('ar-EG'),
+      name: document.getElementById('emp-name').value.trim(),
+      department: selections['dept'] || '',
+      meal: selections['meal'] || '',
+      quantity_rating: selections['qty'] || '',
+      reported_supervisor: selections['reported'] || 'لم يُحدد',
+      comment: document.getElementById('comment').value.trim()
+    };
+
+    try {
+      await fetch(SCRIPT_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      showStep(5);
+    } catch (e) {
+      status.textContent = '❌ حدث خطأ في الإرسال، يرجى المحاولة مرة أخرى';
+      btn.disabled = false;
+      btn.innerHTML = 'إرسال التقييم ✓';
+    }
+  }
+
+  function restart() {
+    Object.keys(selections).forEach(k => delete selections[k]);
+    document.getElementById('emp-name').value = '';
+    document.getElementById('comment').value = '';
+    document.querySelectorAll('.chip').forEach(c => c.classList.remove('selected'));
+    document.querySelectorAll('.error-msg').forEach(e => e.style.display = 'none');
+    const btn = document.getElementById('submit-btn');
+    btn.disabled = false;
+    btn.innerHTML = 'إرسال التقييم ✓';
+    showStep(1);
+  }
+</script>
+</body>
+</html>
