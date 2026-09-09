@@ -107,7 +107,7 @@
   <div class="step" id="s3">
     <div class="section-title">تقييم الوجبة</div>
     <div class="card">
-      <div class="card-label"><span class="required-dot"></span> كمية تقديم الغذاء</div>
+      <div class="card-label"><span class="required-dot"></span> جودة الوجبة</div>
       <div class="chip-grid" id="qty-chips">
         <div class="chip" onclick="pick(this,'qty')">😍 ممتازة</div>
         <div class="chip" onclick="pick(this,'qty')">😊 جيدة جداً</div>
@@ -115,14 +115,7 @@
         <div class="chip" onclick="pick(this,'qty')">😕 مقبولة</div>
         <div class="chip" onclick="pick(this,'qty')" style="grid-column:1/-1">😞 سيئة</div>
       </div>
-      <div class="error-msg" id="err-qty">الرجاء اختيار تقييم الكمية</div>
-    </div>
-    <div class="card">
-      <div class="card-label">هل أبلغت المشرف المسؤول؟</div>
-      <div class="chip-grid" id="reported-chips">
-        <div class="chip" onclick="pick(this,'reported')">✅ نعم، أبلغت</div>
-        <div class="chip" onclick="pick(this,'reported')">❌ لم أبلغ</div>
-      </div>
+      <div class="error-msg" id="err-qty">الرجاء اختيار تقييم الجودة</div>
     </div>
     <div class="nav">
       <button class="btn-back" onclick="goBack(3)">→ رجوع</button>
@@ -209,7 +202,6 @@
       department: selections['dept'] || '',
       meal: selections['meal'] || '',
       quantity_rating: selections['qty'] || '',
-      reported_supervisor: selections['reported'] || 'لم يُحدد',
       comment: document.getElementById('comment').value.trim()
     };
 
